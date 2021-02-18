@@ -1,6 +1,6 @@
 pragma solidity ^0.4.19;
 
-import "./zombie_factory.sol";
+import "./zombiefactory.sol";
 
 contract KittyInterface {
     function getKitty(uint256 _id)
@@ -21,8 +21,11 @@ contract KittyInterface {
 }
 
 contract ZombieFeeding is ZombieFactory {
-    address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
-    KittyInterface kittyContract = KittyInterface(ckAddress);
+    KittyInterface kittyContract;
+
+    function setKittyContractAddress(address _address) external onlyOwner {
+        kittyContract = KittyInterface(_address);
+    }
 
     function feedAndMultiply(
         uint256 _zombieId,
@@ -33,7 +36,6 @@ contract ZombieFeeding is ZombieFactory {
         Zombie storage myZombie = zombies[_zombieId];
         _targetDna = _targetDna % dnaModulus;
         uint256 newDna = (myZombie.dna + _targetDna) / 2;
-
         if (keccak256(_species) == keccak256("kitty")) {
             newDna = newDna - (newDna % 100) + 99;
         }
@@ -43,7 +45,6 @@ contract ZombieFeeding is ZombieFactory {
     function feedOnKitty(uint256 _zombieId, uint256 _kittyId) public {
         uint256 kittyDna;
         (, , , , , , , , , kittyDna) = kittyContract.getKitty(_kittyId);
-
         feedAndMultiply(_zombieId, kittyDna, "kitty");
     }
 }
