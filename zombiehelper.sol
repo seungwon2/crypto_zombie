@@ -3,24 +3,34 @@ pragma solidity ^0.4.19;
 import "./zombiefeeding.sol";
 
 contract ZombieHelper is ZombieFeeding {
+    uint256 levelUpFee = 0.001 ether;
+
     modifier aboveLevel(uint256 _level, uint256 _zombieId) {
         require(zombies[_zombieId].level >= _level);
         _;
     }
 
+    function withdraw() external onlyOwner {
+        owner.transfer(this.balance);
+    }
+
+    function setLevelUpFee(uint256 _fee) external onlyOwner {
+        levelUpFee = _fee;
+    }
+
     function changeName(uint256 _zombieId, string _newName)
         external
         aboveLevel(2, _zombieId)
+        ownerOf(_zombieId)
     {
-        require(msg.sender == zombieToOwner[_zombieId]);
         zombies[_zombieId].name = _newName;
     }
 
     function changeDna(uint256 _zombieId, uint256 _newDna)
         external
         aboveLevel(20, _zombieId)
+        ownerOf(_zombieId)
     {
-        require(msg.sender == zombieToOwner[_zombieId]);
         zombies[_zombieId].dna = _newDna;
     }
 
@@ -31,7 +41,6 @@ contract ZombieHelper is ZombieFeeding {
     {
         uint256[] memory result = new uint256[](ownerZombieCount[_owner]);
         uint256 counter = 0;
-
         for (uint256 i = 0; i < zombies.length; i++) {
             if (zombieToOwner[i] == _owner) {
                 result[counter] = i;
