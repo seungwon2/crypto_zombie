@@ -14,5 +14,8 @@ contract EthPriceOracle is Ownable {
         uint256 id =
             uint256(keccak256(abi.encodePacked(now, msg.sender, randNonce))) %
                 modulus;
+        pendingRequests[id] = true;
+        emit GetLatestEthPriceEvent(msg.sender, id);
+        return id;
     }
 }
