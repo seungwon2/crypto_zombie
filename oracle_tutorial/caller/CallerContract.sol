@@ -30,6 +30,10 @@ contract CallerContract is Ownable {
       delete myRequests[_id];
       emit PriceUpdatedEvent(_ethPrice, _id);
     }
+    modifier onlyOracle() {
+      require(msg.sender==oracleAddress, "You are not authorized to call this function.");
+      _;
+    }
 }
 
 }
